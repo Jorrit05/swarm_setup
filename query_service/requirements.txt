@@ -1,0 +1,7 @@
+fastapi
+fastapi_sqlalchemy
+sqlalchemy
+uvicorn
+PyMySQL
+ConfigParser
+mysql-connector-python

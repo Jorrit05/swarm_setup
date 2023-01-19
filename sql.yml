@@ -1,0 +1,65 @@
+version: '3.3'
+
+services:
+
+  python_app:
+    image: query_service
+    networks:
+      - appnet
+    depends_on:
+      - db
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_PASSWORD_FILE: /run/secrets/db_dba_password
+      MYSQL_DATABASE: mydb
+    secrets:
+      - db_root_password
+      - db_dba_password
+  db:
+    image: mysql
+    secrets:
+      - db_root_password
+      - db_dba_password
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        reservations:
+          memory: 128M
+        limits:
+          memory: 256M
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_USER: dba
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_PASSWORD_FILE: /run/secrets/db_dba_password
+    networks:
+      appnet:
+        aliases:
+          - mysql
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /Users/jorrit/Documents/master-software-engineering/thesis/docker_testing/db/:/docker-entrypoint-initdb.d
+      - type: bind
+        source: /Users/jorrit/Documents/mysql
+        target: /var/lib/mysql
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - appnet
+
+secrets:
+  db_root_password:
+    external: true
+  db_dba_password:
+    external: true
+
+networks:
+  appnet:
+    external: true
