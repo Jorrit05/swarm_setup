@@ -1,4 +1,4 @@
-package github.com/Jorrit05/swarm_setup/lib/queues
+package queues
 
 import (
 	"github.com/streadway/amqp"
