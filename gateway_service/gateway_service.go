@@ -25,5 +25,6 @@ func main() {
 
 	for msg := range messages {
 		log.Printf("Received message: %v", string(msg.Body))
+		msg.Headers.Validate()
 	}
 }
