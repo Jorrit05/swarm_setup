@@ -1,8 +1,9 @@
 package main
 
 import (
-	"lib/queues"
 	"log"
+
+	"github.com/Jorrit05/swarm_setup/lib/queues"
 )
 
 func main() {
