@@ -1,7 +1,12 @@
 version: '3.3'
 
 services:
-
+  rabbitmq:
+    image: rabbitmq:3-management
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
+    ports:
+      - 15672:15672
   python_app:
     image: query_service
     networks:
@@ -42,7 +47,7 @@ services:
           - mysql
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /Users/jorrit/Documents/master-software-engineering/thesis/docker_testing/db/:/docker-entrypoint-initdb.d
+      - /Users/jorrit/Documents/master-software-engineering/thesis/swarm_setup/db/:/docker-entrypoint-initdb.d
       - type: bind
         source: /Users/jorrit/Documents/mysql
         target: /var/lib/mysql
