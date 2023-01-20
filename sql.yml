@@ -1,12 +1,10 @@
 version: '3.3'
 
+volumes:
+  rabbitmqdata:
+    driver: local
+
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    volumes:
-      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
-    ports:
-      - 15672:15672
   python_app:
     image: query_service
     networks:
@@ -52,6 +50,23 @@ services:
         source: /Users/jorrit/Documents/mysql
         target: /var/lib/mysql
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmqdata:/Users/jorrit/Documents/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "mysecretcookie"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
   adminer:
     image: adminer
     ports:

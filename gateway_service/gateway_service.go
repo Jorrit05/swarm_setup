@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	conn, err := GoLib.Connect()
+	conn, err := GoLib.Connect("amqp://guest:guest@localhost:5672/")
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
