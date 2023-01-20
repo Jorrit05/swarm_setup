@@ -1,5 +1,5 @@
-module github.com/Jorrit05/swarm_setup/lib/queues
+module queues
 
 go 1.19
 
-require github.com/streadway/amqp v1.0.0 // indirect
+require github.com/streadway/amqp v1.0.0
