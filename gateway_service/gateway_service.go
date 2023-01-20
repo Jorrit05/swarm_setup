@@ -3,22 +3,22 @@ package main
 import (
 	"log"
 
-	"github.com/Jorrit05/swarm_setup/lib/queues"
+	"github.com/Jorrit05/GoLib"
 )
 
 func main() {
-	conn, err := queues.Connect()
+	conn, err := GoLib.Connect()
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
 
-	inputQueue, err := queues.DeclareQueue("input_queue")
+	inputQueue, err := GoLib.DeclareQueue("input_queue")
 	if err != nil {
 		log.Fatalf("Failed to declare input queue: %v", err)
 	}
 
-	messages, err := queues.Consume(inputQueue.Name)
+	messages, err := GoLib.Consume(inputQueue.Name)
 	if err != nil {
 		log.Fatalf("Failed to register consumer: %v", err)
 	}
