@@ -7,31 +7,32 @@ import (
 	"github.com/Jorrit05/GoLib"
 )
 
-func main() {
-	conn, err := GoLib.Connect("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
-	}
-	defer conn.Close()
+func mongo_test() {
+	// mongo_test()
+	// conn, err := GoLib.Connect("amqp://guest:guest@localhost:5672/")
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	// }
+	// defer conn.Close()
 
-	inputQueue, err := GoLib.DeclareQueue("input_queue")
-	if err != nil {
-		log.Fatalf("Failed to declare input queue: %v", err)
-	}
+	// inputQueue, err := GoLib.DeclareQueue("input_queue")
+	// if err != nil {
+	// 	log.Fatalf("Failed to declare input queue: %v", err)
+	// }
 
-	messages, err := GoLib.Consume(inputQueue.Name)
-	if err != nil {
-		log.Fatalf("Failed to register consumer: %v", err)
-	}
+	// messages, err := GoLib.Consume(inputQueue.Name)
+	// if err != nil {
+	// 	log.Fatalf("Failed to register consumer: %v", err)
+	// }
 
-	for msg := range messages {
-		log.Printf("Received message: %v", string(msg.Body))
-		if msg.Priority == 3 {
-			publish(inputQueue.Name)
-		}
+	// for msg := range messages {
+	// 	log.Printf("Received message: %v", string(msg.Body))
+	// 	if msg.Priority == 3 {
+	// 		publish(inputQueue.Name)
+	// 	}
 
-		msg.Headers.Validate()
-	}
+	// 	msg.Headers.Validate()
+	// }
 }
 
 type ExampleMessage struct {
