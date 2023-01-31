@@ -92,7 +92,7 @@ func query(client *mongo.Client, ctx context.Context, dataBase, col string, quer
 	return
 }
 
-func main() {
+func mongotest() {
 
 	// get Client, Context, CancelFunc and err from connect method.
 	client, ctx, cancel, err := connect("mongodb://root:example@localhost:27017")

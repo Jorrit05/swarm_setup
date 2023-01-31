@@ -1,11 +1,26 @@
-version: '3.3'
+version: '3.9'
 
 volumes:
   rabbitmqdata:
     driver: local
 
 services:
-  python_app:
+  randomize_service:
+    image: randomize_service
+    volumes:
+      - ./randomize_service/log.txt:/app/log.txt
+    networks:
+      - appnet
+    depends_on:
+      - rabbitmq
+    environment:
+      INPUT_QUEUE: start_queue
+      ROUTING_KEY: service.randomize
+      AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
+      AMQ_USER: normal_user
+    secrets:
+      - rabbitmq_user
+  query_service:
     image: query_service
     networks:
       - appnet
@@ -58,10 +73,15 @@ services:
     volumes:
       - rabbitmqdata:/Users/jorrit/Documents/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
+      - ./definitions.json:/opt/definitions.json
     environment:
       RABBITMQ_ERLANG_COOKIE: "mysecretcookie"
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      appnet:
+        aliases:
+          - rabbit
     deploy:
       replicas: 1
       placement:
@@ -78,6 +98,8 @@ secrets:
   db_root_password:
     external: true
   db_dba_password:
+    external: true
+  rabbitmq_user:
     external: true
 
 networks:

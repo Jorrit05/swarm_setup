@@ -17,7 +17,7 @@ class Base:
 class Person(Base):
     __tablename__ = "person"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    person_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     first_name = Column(String(100), index=True)
     last_name = Column(String(100), index=True)
     sex = Column(Enum("male", "female", "other"), default="other")
