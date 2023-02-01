@@ -1,5 +1,5 @@
 # Use the official Golang image as the base image
-FROM golang:latest
+FROM golang:1.19.5-alpine3.17
 
 # Set the working directory
 WORKDIR /app
@@ -12,9 +12,6 @@ RUN go mod download
 
 # Build the application
 RUN go build -o main .
-
-# Expose port 8080 to the host
-# EXPOSE 8080
 
 # Start the application
 CMD ["./main"]

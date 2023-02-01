@@ -10,7 +10,9 @@
         "person_id": 2,
         "first_name": "Nya",
         "sex": "other"
-    },
+    }
+]
+
     {
         "last_name": "Yundt",
         "person_id": 3,

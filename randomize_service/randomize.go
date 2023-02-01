@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -11,43 +10,22 @@ import (
 )
 
 var routingKey string = os.Getenv("ROUTING_KEY")
-
-func startLog() *os.File {
-	f, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	return f
-}
+var serviceName string = "randomize_service"
 
 func main() {
-	f := startLog()
+	// Log to file
+	f := GoLib.StartLog()
 	defer f.Close()
 	log.SetOutput(f)
 
-	// Connect to AMQ queue, declare own routingKey
-	conn, channel, err := GoLib.SetupConnection("randomize_service", routingKey)
+	// Connect to AMQ queue, declare own routingKey as queue, start listening for messages
+	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey)
 	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+		log.Fatalf("Failed to setup proper connection to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
 
-	// Start listening to queue defined by environment var INPUT_QUEUE
-	messages, err := GoLib.Consume(os.Getenv("INPUT_QUEUE"))
-	if err != nil {
-		log.Fatalf("Failed to register consumer: %v", err)
-	}
-
-	// Message loop stays alive
-	for msg := range messages {
-		log.Printf("Received message: %v", string(msg.Body))
-		anonymizedMsg := anonymize(msg)
-
-		err := channel.PublishWithContext(context.Background(), "topic_exchange", routingKey, false, false, anonymizedMsg)
-		if err != nil {
-			log.Fatalf("Error publishing message: %v", err)
-		}
-	}
+	GoLib.StartMessageLoop(anonymize, messages, channel, routingKey, "")
 }
 
 type SkillQuery struct {
@@ -59,12 +37,13 @@ type SkillQuery struct {
 	// Programming    string `json:"programming"`
 }
 
-func anonymize(message amqp.Delivery) amqp.Publishing {
+func anonymize(message amqp.Delivery) (amqp.Publishing, error) {
 	var skillQueries []SkillQuery
 
 	err := json.Unmarshal(message.Body, &skillQueries)
 	if err != nil {
-		log.Fatalf("Error unmarshaling JSON:", err)
+		log.Printf("Error unmarshaling JSON:", err)
+		return amqp.Publishing{}, err
 	}
 
 	// Anonymise last name
@@ -72,10 +51,14 @@ func anonymize(message amqp.Delivery) amqp.Publishing {
 		skillQueries[i].LastName = "anonymized"
 	}
 
-	jsonMessage, _ := json.Marshal(skillQueries)
+	jsonMessage, err := json.Marshal(skillQueries)
+	if err != nil {
+		log.Printf("Error marshalling JSON: %s", err)
+		return amqp.Publishing{}, err
+	}
 
 	return amqp.Publishing{
 		Body: jsonMessage,
 		Type: "text/json",
-	}
+	}, nil
 }

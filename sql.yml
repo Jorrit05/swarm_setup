@@ -14,7 +14,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      INPUT_QUEUE: start_queue
+      INPUT_QUEUE: query_service
       ROUTING_KEY: service.randomize
       AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
       AMQ_USER: normal_user
@@ -22,6 +22,8 @@ services:
       - rabbitmq_user
   query_service:
     image: query_service
+    volumes:
+      - ./query_service/log.txt:/app/log.txt
     networks:
       - appnet
     depends_on:
@@ -30,9 +32,15 @@ services:
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
       MYSQL_PASSWORD_FILE: /run/secrets/db_dba_password
       MYSQL_DATABASE: mydb
+      DB_USER: root
+      ROUTING_KEY: service.query
+      INPUT_QUEUE: start_queue
+      AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
+      AMQ_USER: normal_user
     secrets:
       - db_root_password
       - db_dba_password
+      - rabbitmq_user
   db:
     image: mysql
     secrets:
