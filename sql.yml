@@ -16,10 +16,10 @@ services:
       AMQ_USER: normal_user
     secrets:
       - rabbitmq_user
-  randomize_service:
-    image: randomize_service
+  anonymize_service:
+    image: anonymize_service
     volumes:
-      - ./randomize_service/log.txt:/app/log.txt
+      - ./anonymize_service/log.txt:/app/log.txt
     networks:
       - appnet
     depends_on:

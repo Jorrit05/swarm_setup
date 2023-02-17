@@ -18,6 +18,10 @@ github.com/Jorrit05/GoLib v0.0.0-20230205143000-6b8f3630f125 h1:W+Cr8vHxLJJxYeSy
 github.com/Jorrit05/GoLib v0.0.0-20230205143000-6b8f3630f125/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
 github.com/Jorrit05/GoLib v0.0.0-20230217134027-cf22e2ae3390 h1:PFC8bIcLTCaSvUBmHgPUtHh10RAROLqzu3j6TFqJA4Y=
 github.com/Jorrit05/GoLib v0.0.0-20230217134027-cf22e2ae3390/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230217141424-7d6558dcad83 h1:auiM7p+/7aF3cgNvcuVbvm9dfVHOvUHZrzzFF0lrPlo=
+github.com/Jorrit05/GoLib v0.0.0-20230217141424-7d6558dcad83/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230217151446-aeed56cea9ce h1:zgz0ByF3kB5+vKNbERqWSMjQpgMi+5RDv+xUVu9Zvm8=
+github.com/Jorrit05/GoLib v0.0.0-20230217151446-aeed56cea9ce/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-sql-driver/mysql v1.7.0 h1:ueSltNNllEqE3qcWBTD0iQd3IpL/6U+mJxLkazJ7YPc=
