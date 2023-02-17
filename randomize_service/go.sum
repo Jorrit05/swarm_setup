@@ -26,6 +26,14 @@ github.com/Jorrit05/GoLib v0.0.0-20230201143855-f913d22b7ef1 h1:uUmq0XYmt1wkYzrz
 github.com/Jorrit05/GoLib v0.0.0-20230201143855-f913d22b7ef1/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
 github.com/Jorrit05/GoLib v0.0.0-20230201195356-b9d67e7dc460 h1:PC7S035U6zt5zi1EOL6Qr10H+6bYN59hALif0HDBY7A=
 github.com/Jorrit05/GoLib v0.0.0-20230201195356-b9d67e7dc460/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230202105356-86faff174e2a h1:K7swWh0w+mG107m3vLUeyku0cDE6US6B0KkqvJIJ8FI=
+github.com/Jorrit05/GoLib v0.0.0-20230202105356-86faff174e2a/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230205143000-6b8f3630f125 h1:W+Cr8vHxLJJxYeSyOKatlVvCx7xggVNI+4CMplSxnEc=
+github.com/Jorrit05/GoLib v0.0.0-20230205143000-6b8f3630f125/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230217134027-cf22e2ae3390 h1:PFC8bIcLTCaSvUBmHgPUtHh10RAROLqzu3j6TFqJA4Y=
+github.com/Jorrit05/GoLib v0.0.0-20230217134027-cf22e2ae3390/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230217141424-7d6558dcad83 h1:auiM7p+/7aF3cgNvcuVbvm9dfVHOvUHZrzzFF0lrPlo=
+github.com/Jorrit05/GoLib v0.0.0-20230217141424-7d6558dcad83/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
@@ -36,6 +44,10 @@ github.com/rabbitmq/amqp091-go v1.5.0 h1:VouyHPBu1CrKyJVfteGknGOGCzmOz0zcv/tONLk
 github.com/rabbitmq/amqp091-go v1.5.0/go.mod h1:JsV0ofX5f1nwOGafb8L5rBItt9GyhfQfcJj+oyz0dGg=
 github.com/rabbitmq/amqp091-go v1.6.0 h1:fiFHcMcP+5/A+35MXniiagho1lEXX4+jpHGR+q+LeBU=
 github.com/rabbitmq/amqp091-go v1.6.0/go.mod h1:wfClAtY0C7bOHxd3GjmF26jEHn+rR/0B3+YV+Vn9/NI=
+github.com/rabbitmq/amqp091-go v1.6.1 h1:r6HybD9gOdWeUTP9TKIKdcAuFl4Va4p3OmWUUoeICAU=
+github.com/rabbitmq/amqp091-go v1.6.1/go.mod h1:wfClAtY0C7bOHxd3GjmF26jEHn+rR/0B3+YV+Vn9/NI=
+github.com/rabbitmq/amqp091-go v1.7.0 h1:V5CF5qPem5OGSnEo8BoSbsDGwejg6VUJsKEdneaoTUo=
+github.com/rabbitmq/amqp091-go v1.7.0/go.mod h1:wfClAtY0C7bOHxd3GjmF26jEHn+rR/0B3+YV+Vn9/NI=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

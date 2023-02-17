@@ -1,10 +1,21 @@
 version: '3.9'
 
-volumes:
-  rabbitmqdata:
-    driver: local
-
 services:
+  gateway_service:
+    image: gateway_service
+    volumes:
+      - ./gateway_service/log.txt:/app/log.txt
+    networks:
+      - appnet
+    ports:
+      - 3000:3000
+    depends_on:
+      - rabbitmq
+    environment:
+      AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
+      AMQ_USER: normal_user
+    secrets:
+      - rabbitmq_user
   randomize_service:
     image: randomize_service
     volumes:
@@ -15,7 +26,7 @@ services:
       - rabbitmq
     environment:
       INPUT_QUEUE: query_service
-      ROUTING_KEY: service.randomize
+      OUTPUT_QUEUE: reply_service
       AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
       AMQ_USER: normal_user
     secrets:
@@ -33,8 +44,7 @@ services:
       MYSQL_PASSWORD_FILE: /run/secrets/db_dba_password
       MYSQL_DATABASE: mydb
       DB_USER: root
-      ROUTING_KEY: service.query
-      INPUT_QUEUE: start_queue
+      INPUT_QUEUE: gateway_service
       AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
       AMQ_USER: normal_user
     secrets:
@@ -72,20 +82,21 @@ services:
       - type: bind
         source: /Users/jorrit/Documents/mysql
         target: /var/lib/mysql
-
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - 5672:5672
       - 15672:15672
     volumes:
-      - rabbitmqdata:/Users/jorrit/Documents/rabbitmq
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
       - ./definitions.json:/opt/definitions.json
     environment:
       RABBITMQ_ERLANG_COOKIE: "mysecretcookie"
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_LOGS: "-"
     networks:
       appnet:
         aliases:

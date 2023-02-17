@@ -13,5 +13,6 @@ RUN go mod download
 # Build the application
 RUN go build -o main .
 
+EXPOSE 3000
 # Start the application
 CMD ["./main"]

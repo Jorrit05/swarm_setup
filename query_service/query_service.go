@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"os"
 
 	"github.com/Jorrit05/GoLib"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -13,9 +12,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var routingKey string = os.Getenv("ROUTING_KEY")
-var serviceName string = "query_service"
-var db *sql.DB
+var (
+	serviceName string = "query_service"
+	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
+	db          *sql.DB
+)
 
 func main() {
 	// Log to file
@@ -35,7 +36,7 @@ func main() {
 	defer db.Close()
 
 	// Connect to AMQ queue, declare own routingKey as queue
-	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey)
+	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, true)
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
@@ -115,7 +116,8 @@ func doQuery(message amqp.Delivery) (amqp.Publishing, error) {
 	}
 
 	return amqp.Publishing{
-		Body: jsonMessage,
-		Type: "text/json",
+		Body:          jsonMessage,
+		Type:          "application/json",
+		CorrelationId: message.CorrelationId,
 	}, nil
 }

@@ -3,14 +3,15 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"os"
 
 	"github.com/Jorrit05/GoLib"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var routingKey string = os.Getenv("ROUTING_KEY")
-var serviceName string = "randomize_service"
+var (
+	serviceName string = "randomize_service"
+	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
+)
 
 func main() {
 	// Log to file
@@ -19,7 +20,7 @@ func main() {
 	log.SetOutput(f)
 
 	// Connect to AMQ queue, declare own routingKey as queue, start listening for messages
-	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey)
+	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, true)
 	if err != nil {
 		log.Fatalf("Failed to setup proper connection to RabbitMQ: %v", err)
 	}
@@ -58,7 +59,8 @@ func anonymize(message amqp.Delivery) (amqp.Publishing, error) {
 	}
 
 	return amqp.Publishing{
-		Body: jsonMessage,
-		Type: "text/json",
+		Body:          jsonMessage,
+		Type:          "application/json",
+		CorrelationId: message.CorrelationId,
 	}, nil
 }
