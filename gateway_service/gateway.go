@@ -17,10 +17,8 @@ var (
 	serviceName   string = "gateway_service"
 	routingKey    string = GoLib.GetDefaultRoutingKey(serviceName)
 	outputChannel *amqp.Channel
-	// responseChannels = make(map[string]*requestInfo)
-	mutex      = &sync.Mutex{}
-	requestMap = make(map[string]*requestInfo)
-	// main_ctx   context.Context
+	mutex         = &sync.Mutex{}
+	requestMap    = make(map[string]*requestInfo)
 )
 
 type requestInfo struct {
@@ -60,6 +58,8 @@ func main() {
 	select {}
 }
 
+// Asynchoronous handler function.
+// Create a channel for a response, publishes message to the gateway_queue
 func handler(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -69,8 +69,6 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 	defer req.Body.Close()
 
-	log.Printf("handler: 1: %s", string(body))
-
 	// Generate a unique identifier for the request
 	requestID := uuid.New().String()
 
@@ -79,7 +77,6 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	// req = req.WithContext(ctx)
 
 	// Store the request information in the map
 	mutex.Lock()
@@ -97,9 +94,8 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 	log.Printf("handler: 3, %s", routingKey)
 
-	if err := Publish(ctx, outputChannel, routingKey, convertedAmqMessage, ""); err != nil {
-		log.Println("handler: 4")
-		log.Printf("Handler: Error publishing: %s", err)
+	if err := GoLib.Publish(outputChannel, routingKey, convertedAmqMessage, ""); err != nil {
+		log.Printf("Handler 4: Error publishing: %s", err)
 	}
 
 	// Wait for the response from the response channel
@@ -113,24 +109,19 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// Consume messages from the last microservice (environment var INPUT_QUEUE). Send the output back to
+// the http handler to return to the requestor.
 func startReplyLoop() {
-	log.Println("startReplyLoop: 0")
-	// Connect to AMQ queue, declare own routingKey as queue, start listening for messages
-	messages, conn, _, err := GoLib.SetupConnection("reply_service", "service.reply", true)
-	if err != nil {
-		log.Fatalf("Failed to setup proper connection to RabbitMQ: %v", err)
-	}
+	// Start consuming from environment var INPUT_QUEUE
+	messages, conn := GoLib.StartNewConsumer()
 	defer conn.Close()
 
 	for msg := range messages {
-		log.Println("startReplyLoop: 1")
-
 		mutex.Lock()
 		info, exists := requestMap[msg.CorrelationId]
 		mutex.Unlock()
 		if exists {
 			log.Println("startReplyLoop: msg exists")
-
 			info.response <- msg
 			close(info.response)
 			mutex.Lock()
@@ -138,7 +129,6 @@ func startReplyLoop() {
 			mutex.Unlock()
 		} else {
 			log.Println("startReplyLoop: msg does not exists")
-
 		}
 	}
 }

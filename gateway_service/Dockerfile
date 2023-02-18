@@ -1,5 +1,6 @@
-# Use the official Golang image as the base image
 FROM golang:1.19.5-alpine3.17
+ARG NAME
+ENV NAME=$NAME
 
 # Set the working directory
 WORKDIR /app
@@ -11,8 +12,9 @@ COPY . .
 RUN go mod download
 
 # Build the application
-RUN go build -o main .
+RUN go build -o $NAME .
 
 EXPOSE 3000
+
 # Start the application
-CMD ["./main"]
+CMD  [ "/bin/sh", "-c", "/app/$NAME" ]

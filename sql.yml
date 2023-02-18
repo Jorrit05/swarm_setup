@@ -12,6 +12,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
+      INPUT_QUEUE: anonymize_service
       AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
       AMQ_USER: normal_user
     secrets:
@@ -26,7 +27,6 @@ services:
       - rabbitmq
     environment:
       INPUT_QUEUE: query_service
-      OUTPUT_QUEUE: reply_service
       AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user
       AMQ_USER: normal_user
     secrets:

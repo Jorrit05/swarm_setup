@@ -2,6 +2,8 @@ github.com/Jorrit05/GoLib v0.0.0-20230205143000-6b8f3630f125 h1:W+Cr8vHxLJJxYeSy
 github.com/Jorrit05/GoLib v0.0.0-20230205143000-6b8f3630f125/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
 github.com/Jorrit05/GoLib v0.0.0-20230217134027-cf22e2ae3390 h1:PFC8bIcLTCaSvUBmHgPUtHh10RAROLqzu3j6TFqJA4Y=
 github.com/Jorrit05/GoLib v0.0.0-20230217134027-cf22e2ae3390/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
+github.com/Jorrit05/GoLib v0.0.0-20230217162305-05b3c2a85f7b h1:pUQGkZwryXiaFJR6HR8bdZSpNF9ibeYlGjjLFCh1asw=
+github.com/Jorrit05/GoLib v0.0.0-20230217162305-05b3c2a85f7b/go.mod h1:uQ2uMiVIVyek7WjJjlUs4LLGybsja7LeMXGfvFB7O+A=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
