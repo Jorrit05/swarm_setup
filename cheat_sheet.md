@@ -7,10 +7,13 @@ docker stack rm mongo
 
 docker service ps --no-trunc <ID>
 
+docker network create --driver overlay core_network
 docker network create --driver overlay appnet
 
 openssl rand -base64 12 | docker secret create db_dba_password -
 openssl rand -base64 12 | docker secret create rabbitmq_user -
+(Get hashed pw by logging into rabbit container and "rabbitmqctl hash_password <PW>", I think there was another way through the api/definitions. But forgot..)
+
 docker exec -it $(docker ps -f name=apps_db -q) mysql -u root -p
 docker exec -it $(docker ps -f name=apps_db -q) mongo -u root -p example
 docker exec -it $(docker ps -f name=service_service -q) /bin/sh
@@ -19,6 +22,10 @@ docker exec -it $(docker ps -f name=apps_db -q) cat /run/secrets/db_root_passwor
 
 docker exec -it $(docker ps -f name=mongo -q) cat /run/secrets/db_root_password
 docker exec -it $(docker ps -f name=apps_randomize_service -q) cat /run/secrets/rabbitmq_user
+
+docker logs --since 5s $(docker ps -q --filter "ancestor=grafana/loki:2.8.0" --filter "status=restarting")
+
+
 
 docker run --rm -d --name mongo \
         -e MONGO_INITDB_ROOT_USERNAME=root \
@@ -29,6 +36,12 @@ docker run --rm -d --name mongo \
 {
     "query" : "SELECT `first_name`, `last_name`, `sex`, `person_id` FROM `person` LIMIT 2"
 }
+
+# Logs
+
+docker volume create --name=service_logs
+
+
 # MONGO
 
 db.auth("root", passwordPrompt() )

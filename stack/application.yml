@@ -23,8 +23,6 @@ services:
       - ./anonymize_service/log.txt:/app/log.txt
     networks:
       - appnet
-    depends_on:
-      - rabbitmq
     environment:
       INPUT_QUEUE: query_service
       AMQ_PASSWORD_FILE: /run/secrets/rabbitmq_user

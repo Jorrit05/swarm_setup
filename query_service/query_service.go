@@ -19,10 +19,8 @@ var (
 )
 
 func main() {
-	// Log to file
-	f := GoLib.StartLog()
-	defer f.Close()
-	log.SetOutput(f)
+	log, logFile := GoLib.InitLogger(serviceName)
+	defer logFile.Close()
 
 	// Open a database connection
 	connectionString, _ := GoLib.GetSQLConnectionString()

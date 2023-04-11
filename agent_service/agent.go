@@ -1,39 +1,51 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
-	"log"
 	"sync"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/swarm"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/namesgenerator"
-
 	"github.com/Jorrit05/GoLib"
+	"github.com/docker/docker/client"
 	amqp "github.com/rabbitmq/amqp091-go"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 var (
-	serviceName   string = "gateway_service"
-	routingKey    string = GoLib.GetDefaultRoutingKey(serviceName)
-	outputChannel *amqp.Channel
-	mutex         = &sync.Mutex{}
-	requestMap    = make(map[string]*requestInfo)
+	serviceName  string           = "agent_service"
+	log, logFile                  = GoLib.InitLogger(serviceName)
+	cli          *client.Client   = GoLib.GetDockerClient()
+	routingKey   string           = GoLib.GetDefaultRoutingKey(serviceName)
+	etcdClient   *clientv3.Client = GoLib.GetEtcdClient()
 )
 
-type requestInfo struct {
-	id       string
-	response chan amqp.Delivery
+type AgentConfig struct {
+	IP        string `json:"ip"`
+	Port      int    `json:"port"`
+	OtherData string `json:"other_data"`
 }
 
 func main() {
-	// Log to file
-	f := GoLib.StartLog()
-	defer f.Close()
-	log.SetOutput(f)
+	defer logFile.Close()
+	defer etcdClient.Close()
+
+	// Define a WaitGroup
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	// Prepare agent configuration data
+	agentConfig := AgentConfig{
+		IP:        "10.0.0.1",
+		Port:      8080,
+		OtherData: "example_data",
+	}
+
+	// Serialize agent configuration data as JSON
+	configData, err := json.Marshal(agentConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go GoLib.CreateEtcdLeaseObject(etcdClient, "agent1", string(configData))
 
 	// Connect to AMQ queue, declare own routingKey as queue
 	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, true)
@@ -42,62 +54,44 @@ func main() {
 	}
 	defer conn.Close()
 
-	go register()
-
+	// Start listening for messages, this method keeps this method 'alive'
 	go func() {
-		// Start listening for messages, this method keeps this method 'alive'
 		GoLib.StartMessageLoop(placeholder, messages, channel, routingKey, "")
+		wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
 	}()
 
-	// Create a new Docker client
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		log.Fatalf("Error creating Docker client: %v", err)
-	}
+	// // Example service specification
+	// envVars := map[string]string{
+	// 	"INPUT_QUEUE":       "query_service",
+	// 	"AMQ_PASSWORD_FILE": "/run/secrets/rabbitmq_user",
+	// 	"AMQ_USER":          "normal_user",
+	// }
 
-	// Check if Swarm is active
-	info, err := cli.Info(context.Background())
-	if err != nil {
-		log.Fatalf("Error getting Docker info: %v", err)
-	}
-	if !info.Swarm.ControlAvailable {
-		log.Fatal("This node is not a swarm manager. The agent can only be run on a swarm manager.")
-	}
+	// networks := []string{
+	// 	"appnet",
+	// }
 
-	// Example service specification
-	spec := swarm.ServiceSpec{
-		Annotations: swarm.Annotations{
-			Name: namesgenerator.GetRandomName(0), // Generate a random name for the service
-		},
-		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
-				Image: "nginx:latest",
-			},
-		},
-		EndpointSpec: &swarm.EndpointSpec{
-			Ports: []swarm.PortConfig{
-				{
-					Protocol:      swarm.PortConfigProtocolTCP,
-					PublishedPort: 80,
-					TargetPort:    80,
-				},
-			},
-		},
-	}
+	// secrets := []string{
+	// 	"rabbitmq_user",
+	// }
 
-	// Create the service
-	response, err := cli.ServiceCreate(context.Background(), spec, types.ServiceCreateOptions{})
-	if err != nil {
-		log.Fatalf("Error creating service: %v", err)
-	}
+	// volumes := map[string]string{
+	// 	fmt.Sprintf("/var/log/thesis_logs/%s_log.txt", serviceName): "/app/log.txt",
+	// }
 
-	// Print the service ID
-	fmt.Printf("Service created with ID: %s\n", response.ID)
+	// // ports := map[string]string{"80": "80"}
 
-	// Clean up and close the client
-	if err := cli.Close(); err != nil {
-		log.Fatalf("Error closing Docker client: %v", err)
-	}
+	// spec := GoLib.CreateServiceSpec("anonymize_service", "", envVars, networks, secrets, volumes, nil, cli)
+	// defer cli.Close()
+
+	// Create Docker Service in a separate goroutine
+	// go func() {
+	// 	GoLib.CreateDockerService(cli, spec)
+	// 	wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
+	// }()
+
+	// Wait for both goroutines to finish
+	wg.Wait()
 }
 
 func placeholder(message amqp.Delivery) (amqp.Publishing, error) {

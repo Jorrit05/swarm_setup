@@ -3,16 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/Jorrit05/GoLib"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
+var (
+	serviceName string = "orchestrator_service"
+	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
+)
+
 func main() {
+	log, logFile := GoLib.InitLogger(serviceName)
+	defer logFile.Close()
+
 	etcdEndpoints := os.Getenv("ETCD_ENDPOINTS")
 	if etcdEndpoints == "" {
 		log.Fatal("ETCD_ENDPOINTS environment variable not set")

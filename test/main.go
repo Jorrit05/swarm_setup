@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Jorrit05/GoLib"
@@ -17,7 +18,14 @@ var (
 	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
 )
 
+func LastPartAfterSlash(s string) string {
+	splitted := strings.Split(s, "/")
+	return splitted[len(splitted)-1]
+}
+
 func main() {
+	fmt.Println(LastPartAfterSlash("ThisIsString"))
+
 	// Log to file
 	f := GoLib.StartLog()
 	defer f.Close()

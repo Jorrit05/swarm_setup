@@ -3,6 +3,8 @@ module anonymize
 go 1.19
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230217162305-05b3c2a85f7b // indirect
-	github.com/rabbitmq/amqp091-go v1.7.0 // indirect
+	github.com/Jorrit05/GoLib v0.0.0-20230410152120-fb5a5c00c0cc // indirect
+	github.com/rabbitmq/amqp091-go v1.8.0 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 )

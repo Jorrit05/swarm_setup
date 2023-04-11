@@ -14,10 +14,8 @@ var (
 )
 
 func main() {
-	// Log to file
-	f := GoLib.StartLog()
-	defer f.Close()
-	log.SetOutput(f)
+	log, logFile := GoLib.InitLogger(serviceName)
+	defer logFile.Close()
 
 	// Connect to AMQ queue, declare own routingKey as queue, start listening for messages
 	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, true)
