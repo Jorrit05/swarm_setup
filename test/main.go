@@ -23,9 +23,58 @@ func LastPartAfterSlash(s string) string {
 	return splitted[len(splitted)-1]
 }
 
-func main() {
-	fmt.Println(LastPartAfterSlash("ThisIsString"))
+type leaseOptions struct {
+	somethingElse string
+	leaseTime     int64
+}
 
+type Option func(*leaseOptions)
+
+func WithLeaseTime(leaseTime int64) Option {
+	return func(options *leaseOptions) {
+		options.leaseTime = leaseTime
+	}
+}
+
+func WithSomethingElse(somethingElse string) Option {
+	return func(options *leaseOptions) {
+		options.somethingElse = somethingElse
+	}
+}
+
+type CreateServicePayload struct {
+	ImageName    string            `json:"image_name"`
+	ImageVersion string            `json:"image_version"`
+	EnvVars      map[string]string `json:"env_vars"`
+	Networks     []string          `json:"networks"`
+	Secrets      []string          `json:"secrets"`
+	Volumes      map[string]string `json:"volumes"`
+	Ports        map[string]string `json:"ports"`
+}
+
+type MicroServices struct {
+	Services []CreateServicePayload `json:"services"`
+}
+
+// Create object in Etcd with a default 5 second lease
+func CreateEtcdLeaseObject(key string, value string, opts ...Option) {
+	// Default options
+	options := &leaseOptions{
+		leaseTime:     5,
+		somethingElse: "",
+	}
+
+	// Apply custom options
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	fmt.Printf("Lease time: %d, Something else: %s\n", options.leaseTime, options.somethingElse)
+}
+
+func main() {
+	CreateEtcdLeaseObject("Jorrit", "great")
+	CreateEtcdLeaseObject("Jorrit", "great", WithLeaseTime(1))
 	// Log to file
 	f := GoLib.StartLog()
 	defer f.Close()

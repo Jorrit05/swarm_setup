@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 	"sync"
+	"time"
 
 	"github.com/Jorrit05/GoLib"
 	"github.com/docker/docker/client"
@@ -11,32 +14,73 @@ import (
 )
 
 var (
-	serviceName  string           = "agent_service"
-	log, logFile                  = GoLib.InitLogger(serviceName)
-	cli          *client.Client   = GoLib.GetDockerClient()
-	routingKey   string           = GoLib.GetDefaultRoutingKey(serviceName)
-	etcdClient   *clientv3.Client = GoLib.GetEtcdClient()
+	serviceName         string
+	log, logFile                       = GoLib.InitLogger(serviceName)
+	dockerClient        *client.Client = GoLib.GetDockerClient()
+	routingKey          string
+	externalRoutingKey  string
+	externalServiceName string
+	etcdClient          *clientv3.Client = GoLib.GetEtcdClient()
+	agentConfig         EnvironmentConfig
 )
 
-type AgentConfig struct {
-	IP        string `json:"ip"`
-	Port      int    `json:"port"`
-	OtherData string `json:"other_data"`
+type EnvironmentConfig struct {
+	Name             string    `json:"name"`
+	ActiveServices   *[]string `json:"services"`
+	ActiveSince      *time.Time
+	ConfigUpdated    *time.Time
+	RoutingKeyOutput string
+	RoutingKeyInput  string
+	InputQueueName   string
+	ServiceName      string
 }
 
 func main() {
 	defer logFile.Close()
 	defer etcdClient.Close()
 
+	// Because there will be several agents running in this test setup add (and register) a guid for uniqueness
+	serviceName = fmt.Sprintf("agent-%s_service", GoLib.GenerateGuid(1))
+	routingKey = GoLib.GetDefaultRoutingKey(serviceName)
+	externalRoutingKey = fmt.Sprintf("%s-input", routingKey)
+	externalServiceName = fmt.Sprintf("%s-input", serviceName)
+
 	// Define a WaitGroup
 	var wg sync.WaitGroup
 	wg.Add(2)
 
+	// Connect to AMQ queue, declare own routingKey as queue
+	_, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, false)
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	defer conn.Close()
+
+	// The agent will need an external queue to receive requests from the orchestrator
+	messages := registerExternalQueue(channel)
+
+	// Register all basic info of this agents environment
+	registerAgent()
+
+	// Start listening for messages, this method keeps this method 'alive'
+	go func() {
+		startMessageLoop(messages, "")
+		wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
+	}()
+
+	// Wait for both goroutines to finish
+	wg.Wait()
+}
+
+func registerAgent() {
 	// Prepare agent configuration data
-	agentConfig := AgentConfig{
-		IP:        "10.0.0.1",
-		Port:      8080,
-		OtherData: "example_data",
+
+	agentConfig = EnvironmentConfig{
+		Name:             os.Getenv("HOSTNAME"),
+		RoutingKeyOutput: routingKey,
+		ServiceName:      serviceName,
+		InputQueueName:   externalServiceName,
+		RoutingKeyInput:  externalRoutingKey,
 	}
 
 	// Serialize agent configuration data as JSON
@@ -45,68 +89,52 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go GoLib.CreateEtcdLeaseObject(etcdClient, "agent1", string(configData))
-
-	// Connect to AMQ queue, declare own routingKey as queue
-	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, true)
-	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
-	}
-	defer conn.Close()
-
-	// Start listening for messages, this method keeps this method 'alive'
-	go func() {
-		GoLib.StartMessageLoop(placeholder, messages, channel, routingKey, "")
-		wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
-	}()
-
-	// // Example service specification
-	// envVars := map[string]string{
-	// 	"INPUT_QUEUE":       "query_service",
-	// 	"AMQ_PASSWORD_FILE": "/run/secrets/rabbitmq_user",
-	// 	"AMQ_USER":          "normal_user",
-	// }
-
-	// networks := []string{
-	// 	"appnet",
-	// }
-
-	// secrets := []string{
-	// 	"rabbitmq_user",
-	// }
-
-	// volumes := map[string]string{
-	// 	fmt.Sprintf("/var/log/thesis_logs/%s_log.txt", serviceName): "/app/log.txt",
-	// }
-
-	// // ports := map[string]string{"80": "80"}
-
-	// spec := GoLib.CreateServiceSpec("anonymize_service", "", envVars, networks, secrets, volumes, nil, cli)
-	// defer cli.Close()
-
-	// Create Docker Service in a separate goroutine
-	// go func() {
-	// 	GoLib.CreateDockerService(cli, spec)
-	// 	wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
-	// }()
-
-	// Wait for both goroutines to finish
-	wg.Wait()
+	go GoLib.CreateEtcdLeaseObject(etcdClient, fmt.Sprintf("/agents/%s", agentConfig.Name), string(configData))
 }
 
-func placeholder(message amqp.Delivery) (amqp.Publishing, error) {
-	var employeeSalary map[string]int
-	employeeSalary["me"] = 2000
+func updateAgent() {
 
-	jsonMessage, err := json.Marshal(employeeSalary)
+	// Update the ActiveSince field
+	now := time.Now()
+	agentConfig.ConfigUpdated = &now
+
+	// Serialize agent configuration data as JSON
+	configData, err := json.Marshal(agentConfig)
 	if err != nil {
-		log.Printf("Error marshalling JSON: %s", err)
-		return amqp.Publishing{}, err
+		log.Fatal(err)
 	}
 
-	return amqp.Publishing{
-		Body:          jsonMessage,
-		Type:          "application/json",
-		CorrelationId: message.CorrelationId,
-	}, nil
+	go GoLib.CreateEtcdLeaseObject(etcdClient, fmt.Sprintf("/agents/%s", agentConfig.Name), string(configData))
+
+}
+
+func registerExternalQueue(channel *amqp.Channel) <-chan amqp.Delivery {
+
+	queue, err := GoLib.DeclareQueue(externalServiceName, channel)
+	if err != nil {
+		log.Fatalf("Failed to declare queue: %v", err)
+	}
+
+	// Bind queue to "topic_exchange"
+	// TODO: Make "topic_exchange" flexible?
+	if err := channel.QueueBind(
+		queue.Name,         // name
+		externalRoutingKey, // key
+		"topic_exchange",   // exchange
+		false,              // noWait
+		nil,                // args
+	); err != nil {
+		log.Fatalf("Queue Bind: %s", err)
+	}
+
+	// Start listening to queue
+	messages, err := GoLib.Consume(externalServiceName, channel)
+	if err != nil {
+		log.Fatalf("Failed to register consumer: %v", err)
+
+	} else {
+		log.Printf("Registered consumer: %s", externalServiceName)
+	}
+
+	return messages
 }

@@ -32,6 +32,6 @@ func createRabbitMq() {
 		"15672": "15672",
 	}
 
-	spec := GoLib.CreateServiceSpec(image, version, envVars, networks, secrets, volumes, ports, cli)
-	GoLib.CreateDockerService(cli, spec)
+	spec := GoLib.CreateServiceSpec(image, version, envVars, networks, secrets, volumes, ports, dockerClient)
+	GoLib.CreateDockerService(dockerClient, spec)
 }

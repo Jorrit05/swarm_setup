@@ -8,11 +8,15 @@ docker stack rm mongo
 docker service ps --no-trunc <ID>
 
 docker network create --driver overlay core_network
-docker network create --driver overlay appnet
+docker network create --driver overlay unl_1
+docker network create --driver overlay unl_2
+docker network create --driver overlay third_party
 
+openssl rand -base64 12 | docker secret create db_root_password -
 openssl rand -base64 12 | docker secret create db_dba_password -
 openssl rand -base64 12 | docker secret create rabbitmq_user -
-(Get hashed pw by logging into rabbit container and "rabbitmqctl hash_password <PW>", I think there was another way through the api/definitions. But forgot..)
+(Get hashed pw by logging into rabbit container and "rabbitmqctl hash_password <PW>", I think there was another way through the api/definitions. But forgot..
+Perhaps starting the service, creating the user manually, copying the hash from the api/definitions.. big brain time)
 
 docker exec -it $(docker ps -f name=apps_db -q) mysql -u root -p
 docker exec -it $(docker ps -f name=apps_db -q) mongo -u root -p example
