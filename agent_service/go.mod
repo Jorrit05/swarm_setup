@@ -3,7 +3,7 @@ module agent_service
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230411184514-0165c5164327
+	github.com/Jorrit05/GoLib v0.0.0-20230412174552-37b6013621fd
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/rabbitmq/amqp091-go v1.8.0
 	go.etcd.io/etcd/client/v3 v3.5.7
@@ -38,4 +38,5 @@ require (
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/grpc v1.54.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

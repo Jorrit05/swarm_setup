@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"log"
+	"sync"
 
 	"github.com/Jorrit05/GoLib"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -13,14 +13,18 @@ import (
 )
 
 var (
-	serviceName string = "query_service"
-	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
-	db          *sql.DB
+	log, logFile        = GoLib.InitLogger(serviceName)
+	serviceName  string = "query_service"
+	routingKey   string = GoLib.GetDefaultRoutingKey(serviceName)
+	db           *sql.DB
 )
 
 func main() {
-	log, logFile := GoLib.InitLogger(serviceName)
 	defer logFile.Close()
+
+	// Define a WaitGroup
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	// Open a database connection
 	connectionString, _ := GoLib.GetSQLConnectionString()
@@ -40,8 +44,14 @@ func main() {
 	}
 	defer conn.Close()
 
+	go func() {
+		GoLib.StartMessageLoop(doQuery, messages, channel, routingKey, "")
+		wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
+	}()
+
+	// Wait for both goroutines to finish
+	wg.Wait()
 	// Start listening for messages, this method keeps this method 'alive'
-	GoLib.StartMessageLoop(doQuery, messages, channel, routingKey, "")
 }
 
 type SkillQuery struct {

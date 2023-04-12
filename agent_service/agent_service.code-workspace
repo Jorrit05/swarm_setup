@@ -14,6 +14,9 @@
 		},
 		{
 			"path": "../docs"
+		},
+		{
+			"path": "../orchestrator_service"
 		}
 	],
 	"settings": {}

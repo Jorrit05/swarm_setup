@@ -14,33 +14,21 @@ import (
 )
 
 var (
-	serviceName         string
+	serviceName                        = fmt.Sprintf("agent-%s_service", GoLib.GenerateGuid(1))
 	log, logFile                       = GoLib.InitLogger(serviceName)
 	dockerClient        *client.Client = GoLib.GetDockerClient()
 	routingKey          string
 	externalRoutingKey  string
 	externalServiceName string
 	etcdClient          *clientv3.Client = GoLib.GetEtcdClient()
-	agentConfig         EnvironmentConfig
+	agentConfig         GoLib.EnvironmentConfig
 )
-
-type EnvironmentConfig struct {
-	Name             string    `json:"name"`
-	ActiveServices   *[]string `json:"services"`
-	ActiveSince      *time.Time
-	ConfigUpdated    *time.Time
-	RoutingKeyOutput string
-	RoutingKeyInput  string
-	InputQueueName   string
-	ServiceName      string
-}
 
 func main() {
 	defer logFile.Close()
 	defer etcdClient.Close()
 
 	// Because there will be several agents running in this test setup add (and register) a guid for uniqueness
-	serviceName = fmt.Sprintf("agent-%s_service", GoLib.GenerateGuid(1))
 	routingKey = GoLib.GetDefaultRoutingKey(serviceName)
 	externalRoutingKey = fmt.Sprintf("%s-input", routingKey)
 	externalServiceName = fmt.Sprintf("%s-input", serviceName)
@@ -75,7 +63,7 @@ func main() {
 func registerAgent() {
 	// Prepare agent configuration data
 
-	agentConfig = EnvironmentConfig{
+	agentConfig = GoLib.EnvironmentConfig{
 		Name:             os.Getenv("HOSTNAME"),
 		RoutingKeyOutput: routingKey,
 		ServiceName:      serviceName,

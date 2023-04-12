@@ -2,20 +2,24 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"sync"
 
 	"github.com/Jorrit05/GoLib"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var (
-	serviceName string = "anonymize_service"
-	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
+	log, logFile        = GoLib.InitLogger(serviceName)
+	serviceName  string = "anonymize_service"
+	routingKey   string = GoLib.GetDefaultRoutingKey(serviceName)
 )
 
 func main() {
-	log, logFile := GoLib.InitLogger(serviceName)
 	defer logFile.Close()
+
+	// Define a WaitGroup
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	// Connect to AMQ queue, declare own routingKey as queue, start listening for messages
 	messages, conn, channel, err := GoLib.SetupConnection(serviceName, routingKey, true)
@@ -25,7 +29,13 @@ func main() {
 	defer conn.Close()
 	log.Printf("Anonymize:  %s", routingKey)
 
-	GoLib.StartMessageLoop(anonymize, messages, channel, routingKey, "")
+	go func() {
+		GoLib.StartMessageLoop(anonymize, messages, channel, routingKey, "")
+		wg.Done() // Decrement the WaitGroup counter when the goroutine finishes
+	}()
+
+	// Wait for both goroutines to finish
+	wg.Wait()
 }
 
 type SkillQuery struct {

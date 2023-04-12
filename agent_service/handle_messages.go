@@ -9,36 +9,13 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type CreateServicePayload struct {
-	ImageName    string            `json:"image_name"`
-	ImageVersion string            `json:"image_version"`
-	EnvVars      map[string]string `json:"env_vars"`
-	Networks     []string          `json:"networks"`
-	Secrets      []string          `json:"secrets"`
-	Volumes      map[string]string `json:"volumes"`
-	Ports        map[string]string `json:"ports"`
-}
-
-type MicroServices struct {
-	Services []CreateServicePayload
-}
-
-type DetachAttachServicePayload struct {
-	ServiceName string `json:"service_name"`
-	QueueName   string `json:"queue_name"`
-}
-
-type KillServicePayload struct {
-	ServiceName string `json:"service_name"`
-}
-
-func handleCreateService(cli *client.Client, payload MicroServices) {
+func handleCreateService(cli *client.Client, payload []GoLib.CreateServicePayload) {
 	fmt.Println("Handling Create Service")
 
-	for _, microservice := range payload.Services {
+	for _, microservice := range payload {
 		serviceSpec := GoLib.CreateServiceSpec(
 			microservice.ImageName,
-			microservice.ImageVersion,
+			microservice.Tag,
 			microservice.EnvVars,
 			microservice.Networks,
 			microservice.Secrets,
@@ -50,17 +27,17 @@ func handleCreateService(cli *client.Client, payload MicroServices) {
 	}
 }
 
-func handleDetachService(payload DetachAttachServicePayload) {
+func handleDetachService(payload GoLib.DetachAttachServicePayload) {
 	fmt.Println("Handling Detach Service")
 	// Detach the service from the queue
 }
 
-func handleAttachService(payload DetachAttachServicePayload) {
+func handleAttachService(payload GoLib.DetachAttachServicePayload) {
 	fmt.Println("Handling Attach Service")
 	// Attach the service to the queue
 }
 
-func handleKillService(payload KillServicePayload) {
+func handleKillService(payload GoLib.KillServicePayload) {
 	fmt.Println("Handling Kill Service")
 	// Kill the service
 }
@@ -77,7 +54,7 @@ func startMessageLoop(
 
 		switch msg.Type {
 		case "CreateService":
-			var payload MicroServices
+			var payload []GoLib.CreateServicePayload
 			err := json.Unmarshal(msg.Body, &payload)
 			if err != nil {
 				log.Printf("Error decoding CreateServicePayload: %v", err)

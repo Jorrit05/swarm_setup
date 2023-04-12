@@ -4,31 +4,38 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/Jorrit05/GoLib"
+	"github.com/docker/docker/client"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 var (
 	serviceName string = "orchestrator_service"
-	routingKey  string = GoLib.GetDefaultRoutingKey(serviceName)
+	routingKey  string
+
+	log, logFile                = GoLib.InitLogger(serviceName)
+	dockerClient *client.Client = GoLib.GetDockerClient()
+
+	externalRoutingKey  string
+	externalServiceName string
+	etcdClient          *clientv3.Client = GoLib.GetEtcdClient()
+	agentConfig         GoLib.EnvironmentConfig
 )
 
 func main() {
-	log, logFile := GoLib.InitLogger(serviceName)
 	defer logFile.Close()
+	routingKey = GoLib.GetDefaultRoutingKey(serviceName)
 
-	etcdEndpoints := os.Getenv("ETCD_ENDPOINTS")
-	if etcdEndpoints == "" {
-		log.Fatal("ETCD_ENDPOINTS environment variable not set")
+	// Register a yaml file of available microservices in etcd.
+	processedServices, err := GoLib.SetMicroservicesEtcd(&GoLib.EtcdClientWrapper{Client: etcdClient}, "/var/log/stack-files/microservices.yml")
+	if err != nil {
+		log.Fatalf("Error setting microservices in etcd: %v", err)
 	}
 
-	etcdClient, err := newEtcdClient(strings.Split(etcdEndpoints, ","))
-	if err != nil {
-		log.Fatalf("Error creating etcd client: %v", err)
+	for serviceName, _ := range processedServices {
+		log.Infof("serviceName added to etcd, %s", serviceName)
 	}
 
 	http.HandleFunc("/put", putHandler(etcdClient))
@@ -36,14 +43,6 @@ func main() {
 
 	log.Println("Starting server on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func newEtcdClient(endpoints []string) (*clientv3.Client, error) {
-	cfg := clientv3.Config{
-		Endpoints:   endpoints,
-		DialTimeout: 5 * time.Second,
-	}
-	return clientv3.New(cfg)
 }
 
 func putHandler(client *clientv3.Client) http.HandlerFunc {
