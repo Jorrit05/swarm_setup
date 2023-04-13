@@ -3,10 +3,10 @@ module orchestrator_service
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230412190433-8a4b27ff51fe
+	github.com/Jorrit05/GoLib v0.0.0-20230413161422-6ea323530a6d
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/rabbitmq/amqp091-go v1.8.0
-	go.etcd.io/etcd/client/v3 v3.5.7
+	go.etcd.io/etcd/client/v3 v3.5.8
 )
 
 require (
@@ -24,8 +24,8 @@ require (
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
-	go.etcd.io/etcd/api/v3 v3.5.7 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.7 // indirect
+	go.etcd.io/etcd/api/v3 v3.5.8 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.8 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect

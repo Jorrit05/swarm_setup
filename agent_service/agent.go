@@ -21,7 +21,8 @@ var (
 	externalRoutingKey  string
 	externalServiceName string
 	etcdClient          *clientv3.Client = GoLib.GetEtcdClient()
-	agentConfig         GoLib.EnvironmentConfig
+	agentConfig         GoLib.AgentDetails
+	hostname            = os.Getenv("HOSTNAME")
 )
 
 func main() {
@@ -63,8 +64,8 @@ func main() {
 func registerAgent() {
 	// Prepare agent configuration data
 
-	agentConfig = GoLib.EnvironmentConfig{
-		Name:             os.Getenv("HOSTNAME"),
+	agentConfig = GoLib.AgentDetails{
+		Name:             hostname,
 		RoutingKeyOutput: routingKey,
 		ServiceName:      serviceName,
 		InputQueueName:   externalServiceName,

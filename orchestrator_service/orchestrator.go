@@ -1,10 +1,12 @@
 package main
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
+
+	"io/ioutil"
 	"net/http"
-	"time"
+	"strings"
 
 	"github.com/Jorrit05/GoLib"
 	"github.com/docker/docker/client"
@@ -21,7 +23,7 @@ var (
 	externalRoutingKey  string
 	externalServiceName string
 	etcdClient          *clientv3.Client = GoLib.GetEtcdClient()
-	agentConfig         GoLib.EnvironmentConfig
+	agentConfig         GoLib.AgentData
 )
 
 func main() {
@@ -38,59 +40,115 @@ func main() {
 		log.Infof("serviceName added to etcd, %s", serviceName)
 	}
 
-	http.HandleFunc("/put", putHandler(etcdClient))
-	http.HandleFunc("/get", getHandler(etcdClient))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handler)
+	go func() {
+		if err := http.ListenAndServe(":3000", mux); err != nil {
+			log.Fatalf("Error starting HTTP server: %s", err)
+		}
+	}()
 
-	log.Println("Starting server on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	select {}
 }
 
-func putHandler(client *clientv3.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		key := r.URL.Query().Get("key")
-		value := r.URL.Query().Get("value")
+func handler(w http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Printf("handler: Error reading body: %v", err)
+		http.Error(w, "handler: Error reading request body", http.StatusBadRequest)
+		return
+	}
+	defer req.Body.Close()
 
-		if key == "" || value == "" {
-			http.Error(w, "Both key and value parameters are required", http.StatusBadRequest)
-			return
+	var orchestratorRequest GoLib.OrchestratorRequest
+	err = json.Unmarshal([]byte(body), &orchestratorRequest)
+	if err != nil {
+		log.Printf("Error unmarshalling: %v", err)
+		http.Error(w, "Error parsing request", http.StatusBadRequest)
+		return
+	}
+
+	switch orchestratorRequest.Type {
+	case "sql":
+		agentData, _ := handleSqlRequest(orchestratorRequest)
+		if len(agentData.Agents) == 0 {
+			w.Write([]byte("No providers of that name are currently available"))
+		} else if len(agentData.Agents) != len(orchestratorRequest.Providers) {
+			var agentList []string
+			for k := range agentData.Agents {
+				agentList = append(agentList, k)
+			}
+
+			// Filter out which providers aren't online currently
+			nonExistingProviders := strings.Join(GoLib.SliceDifferenceString(orchestratorRequest.Providers, agentList), ",")
+			w.Write([]byte(fmt.Sprintf("Providers %s, currently not available. Other requests, if any, are accepted.", nonExistingProviders)))
+		} else {
+			w.Write([]byte("Request accepted, check output queue"))
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+	case "architecture":
 
-		_, err := client.Put(ctx, key, value)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Fprintf(w, "Key '%s' set to '%s'\n", key, value)
+	default:
+		log.Printf("Unknown message type: %s", orchestratorRequest.Type)
+		http.Error(w, "Unknown request", http.StatusNotFound)
+		return
 	}
 }
 
-func getHandler(client *clientv3.Client) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		key := r.URL.Query().Get("key")
-
-		if key == "" {
-			http.Error(w, "Key parameter is required", http.StatusBadRequest)
-			return
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-
-		resp, err := client.Get(ctx, key)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		if len(resp.Kvs) == 0 {
-			http.Error(w, "Key not found", http.StatusNotFound)
-			return
-		}
-
-		fmt.Fprintf(w, "Key '%s' has value '%s'\n", key, string(resp.Kvs[0].Value))
+func handleSqlRequest(orchestratorRequest GoLib.OrchestratorRequest) (GoLib.AgentData, error) {
+	availableAgents, err := GoLib.GetAvailableAgents(etcdClient)
+	if err != nil {
+		log.Printf("Getting available agents: %v", err)
+		return availableAgents, err
 	}
+	return availableAgents, nil
 }
+
+// func handler(w http.ResponseWriter, req *http.Request) {
+// 	body, err := ioutil.ReadAll(req.Body)
+// 	if err != nil {
+// 		log.Printf("handler: Error reading body: %v", err)
+// 		http.Error(w, "handler: Error reading request body", http.StatusBadRequest)
+// 		return
+// 	}
+// 	defer req.Body.Close()
+
+// 	// Generate a unique identifier for the request
+// 	requestID := uuid.New().String()
+
+// 	// Create a channel to receive the response
+// 	responseChan := make(chan amqp.Delivery)
+
+// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+// 	defer cancel()
+
+// 	// Store the request information in the map
+// 	mutex.Lock()
+// 	requestMap[requestID] = &requestInfo{id: requestID, response: responseChan}
+// 	mutex.Unlock()
+
+// 	// Send the message to the start queue
+// 	convertedAmqMessage := amqp.Publishing{
+// 		// DeliveryMode: amqp.Persistent,
+// 		Timestamp:     time.Now(),
+// 		ContentType:   "application/json",
+// 		CorrelationId: requestID,
+// 		Body:          body,
+// 		// Headers:       amqp.Table{"context": json.Marshal()},
+// 	}
+// 	log.Printf("handler: 3, %s", routingKey)
+
+// 	if err := GoLib.Publish(outputChannel, routingKey, convertedAmqMessage, ""); err != nil {
+// 		log.Printf("Handler 4: Error publishing: %s", err)
+// 	}
+
+// 	// Wait for the response from the response channel
+// 	select {
+// 	case msg := <-responseChan:
+// 		log.Printf("handler: 5, msg received: %s", msg.Body)
+// 		w.Write(msg.Body)
+// 	case <-ctx.Done():
+// 		log.Println("handler: 6, context timed out")
+// 		http.Error(w, "handler: Request timed out", http.StatusRequestTimeout)
+// 	}
+// }

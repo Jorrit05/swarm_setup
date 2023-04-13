@@ -9,7 +9,7 @@ services:
         aliases:
           - orchestrator
     ports:
-      - 8080:8080
+      - 3000:3000
     environment:
       ETCD_ENDPOINTS: http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
     secrets:
@@ -176,8 +176,6 @@ services:
         EOF
         /run.sh
     image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
     networks:
       core_network:
         aliases:
