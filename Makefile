@@ -1,6 +1,6 @@
 commit = $(shell cd /Users/jorrit/Documents/master-software-engineering/thesis/GoLib && git log -1 | head -1 | cut -d ' ' -f 2)
 
-targets := anonymize query gateway agent orchestrator
+targets := anonymize query gateway agent orchestrator reasoner
 
 $(targets): %:
 	cp Dockerfile $*_service/

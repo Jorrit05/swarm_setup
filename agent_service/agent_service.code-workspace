@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "../gateway_service"
+		},
+		{
+			"path": "../reasoner_service"
 		}
 	],
 	"settings": {}

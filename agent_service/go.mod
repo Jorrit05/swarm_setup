@@ -3,7 +3,7 @@ module agent_service
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230413161422-6ea323530a6d
+	github.com/Jorrit05/GoLib v0.0.0-20230414140118-cfa61c213409
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/rabbitmq/amqp091-go v1.8.0
 	go.etcd.io/etcd/client/v3 v3.5.8

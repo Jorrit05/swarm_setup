@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -10,8 +11,8 @@ import (
 )
 
 func handleCreateService(cli *client.Client, payload []GoLib.CreateServicePayload) {
-	fmt.Println("Handling Create Service")
 
+	// Get some values from etcd
 	for _, microservice := range payload {
 		serviceSpec := GoLib.CreateServiceSpec(
 			microservice.ImageName,
@@ -24,6 +25,16 @@ func handleCreateService(cli *client.Client, payload []GoLib.CreateServicePayloa
 			cli,
 		)
 		GoLib.CreateDockerService(cli, serviceSpec)
+
+		jsonData, err := json.Marshal(microservice)
+		if err != nil {
+			log.Warn("Error marshaling payload to JSON:", err)
+		}
+
+		_, err = etcdClient.Put(context.Background(), fmt.Sprintf("%s/%s", msEtcdPath, microservice.ImageName), string(jsonData))
+		if err != nil {
+			log.Fatalf("Failed creating an item in etcd: %s", err)
+		}
 	}
 }
 
@@ -53,6 +64,8 @@ func startMessageLoop(
 		}
 
 		switch msg.Type {
+		case "DataRequest":
+
 		case "CreateService":
 			var payload []GoLib.CreateServicePayload
 			err := json.Unmarshal(msg.Body, &payload)

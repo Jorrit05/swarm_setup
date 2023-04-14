@@ -3,7 +3,7 @@ module test
 go 1.19
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230413123614-68bde265ab95
+	github.com/Jorrit05/GoLib v0.0.0-20230414134718-e8a1613b8573
 	go.etcd.io/etcd/client/v3 v3.5.8
 )
 

@@ -22,7 +22,8 @@ var (
 	externalServiceName string
 	etcdClient          *clientv3.Client = GoLib.GetEtcdClient()
 	agentConfig         GoLib.AgentDetails
-	hostname            = os.Getenv("HOSTNAME")
+	hostname                   = os.Getenv("HOSTNAME")
+	msEtcdPath          string = fmt.Sprintf("/%s/services", hostname)
 )
 
 func main() {
@@ -63,6 +64,7 @@ func main() {
 
 func registerAgent() {
 	// Prepare agent configuration data
+	var service GoLib.MicroServiceData = GoLib.UnmarshalStackFile("/var/log/stack-files/agent.yml")
 
 	agentConfig = GoLib.AgentDetails{
 		Name:             hostname,
@@ -70,6 +72,7 @@ func registerAgent() {
 		ServiceName:      serviceName,
 		InputQueueName:   externalServiceName,
 		RoutingKeyInput:  externalRoutingKey,
+		AgentDetails:     service.Services[hostname],
 	}
 
 	// Serialize agent configuration data as JSON

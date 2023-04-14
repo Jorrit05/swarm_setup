@@ -31,7 +31,7 @@ func main() {
 	routingKey = GoLib.GetDefaultRoutingKey(serviceName)
 
 	// Register a yaml file of available microservices in etcd.
-	processedServices, err := GoLib.SetMicroservicesEtcd(&GoLib.EtcdClientWrapper{Client: etcdClient}, "/var/log/stack-files/microservices.yml")
+	processedServices, err := GoLib.SetMicroservicesEtcd(&GoLib.EtcdClientWrapper{Client: etcdClient}, "/var/log/stack-files/config/microservices_config.yml", "")
 	if err != nil {
 		log.Fatalf("Error setting microservices in etcd: %v", err)
 	}
@@ -43,7 +43,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler)
 	go func() {
-		if err := http.ListenAndServe(":3000", mux); err != nil {
+		if err := http.ListenAndServe(":8080", mux); err != nil {
 			log.Fatalf("Error starting HTTP server: %s", err)
 		}
 	}()
@@ -69,7 +69,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	switch orchestratorRequest.Type {
-	case "sql":
+	case "DataRequest":
 		agentData, _ := handleSqlRequest(orchestratorRequest)
 		if len(agentData.Agents) == 0 {
 			w.Write([]byte("No providers of that name are currently available"))

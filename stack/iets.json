@@ -1,46 +1,20 @@
 {
-    "Name": "anonymize_service",
-    "Labels": null,
-    "TaskTemplate": {
-        "ContainerSpec": {
-            "Image": "anonymize_service:latest",
-            "Env": [
-                "AMQ_USER=normal_user",
-                "INPUT_QUEUE=query_service",
-                "AMQ_PASSWORD_FILE=/run/secrets/rabbitmq_user"
-            ],
-            "Mounts": [
-                {
-                    "Type": "volume",
-                    "Source": "service_logs",
-                    "Target": "/var/log/service_logs"
-                }
-            ],
-            "Secrets": [
-                {
-                    "File": {
-                        "Name": "/run/secrets/rabbitmq_user",
-                        "UID": "0",
-                        "GID": "0",
-                        "Mode": 292
-                    },
-                    "SecretID": "um8gq74js1mjuf21aumplpz3p",
-                    "SecretName": "rabbitmq_user"
-                }
-            ]
-        },
-        "Networks": [
-            {
-                "Target": "unl_1",
-                "Aliases": [
-                    "anonymize_service"
-                ]
+    "type" : "archeTypeUpdate",
+    "requestor" : "uva",
+    "archetype" : {
+            "name": "ArcheType2",
+            "request_type": "RequestType2",
+            "io_config": {
+                "third_party_name": "ttp",
+                "service_io": {
+                    "query_service": "start",
+                    "anonymize_service": "query_service"
+                },
+                "third_party": {
+                    "aggregation_service": "anonymize_service",
+                    "algorithm": "aggregation_service"
+                },
+                "finish": "algorithm"
             }
-        ],
-        "ForceUpdate": 0
-    },
-    "Mode": {},
-    "EndpointSpec": {
-        "Mode": "vip"
-    }
+        }
 }
