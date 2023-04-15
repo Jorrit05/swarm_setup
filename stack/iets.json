@@ -1,20 +1,20 @@
 {
-    "type" : "archeTypeUpdate",
-    "requestor" : "uva",
-    "archetype" : {
-            "name": "ArcheType2",
-            "request_type": "RequestType2",
-            "io_config": {
-                "third_party_name": "ttp",
-                "service_io": {
-                    "query_service": "start",
-                    "anonymize_service": "query_service"
-                },
-                "third_party": {
-                    "aggregation_service": "anonymize_service",
-                    "algorithm": "aggregation_service"
-                },
-                "finish": "algorithm"
-            }
+    "requestor_config": [
+        {
+            "name": "uva",
+            "current_archetype": "Archetype1",
+            "allowed_partners": [
+                "unl1",
+                "unl2"
+            ]
+        },
+        {
+            "name": "vu",
+            "current_archetype": "Archetype1",
+            "allowed_partners": [
+                "unl1",
+                "unl2"
+            ]
         }
+    ]
 }

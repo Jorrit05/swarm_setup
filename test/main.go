@@ -83,7 +83,7 @@ func SaveStructToEtcd[T any](etcdClient *clientv3.Client, key string, target T) 
 
 	return nil
 }
-func RegisterJSONArray[T any](jsonContent []byte, target Iterable, etcdClient *clientv3.Client, key string) error {
+func RegisterJSONArray[T any](jsonContent []byte, target GoLib.Iterable, etcdClient *clientv3.Client, key string) error {
 	log.Print("Starting RegisterJSONArray")
 
 	fmt.Println("Dump JSON:" + string(jsonContent))
@@ -98,7 +98,7 @@ func RegisterJSONArray[T any](jsonContent []byte, target Iterable, etcdClient *c
 	log.Info("Dump target:" + string(target.Len()))
 
 	for i := 0; i < target.Len(); i++ {
-		element := target.Get(i).(NameGetter) // Assert that element implements NameGetter
+		element := target.Get(i).(GoLib.NameGetter) // Assert that element implements NameGetter
 		log.Info("Element getname: " + element.GetName())
 		jsonRep, err := json.Marshal(element)
 		if err != nil {

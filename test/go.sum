@@ -24,6 +24,8 @@ github.com/Jorrit05/GoLib v0.0.0-20230415134319-b586544af21a h1:GTylkkRTUcF6ENsV
 github.com/Jorrit05/GoLib v0.0.0-20230415134319-b586544af21a/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
 github.com/Jorrit05/GoLib v0.0.0-20230415134401-0ef6dfc69167 h1:P4+3RU/aHRPtSq9zpGVEnh2ZjqffHomxd7rG6v00tsA=
 github.com/Jorrit05/GoLib v0.0.0-20230415134401-0ef6dfc69167/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415134622-43ccf9ee0e3a h1:HjOUf1RRXtji1mfykojs+BQziNICBOZye9xRj0CjFJg=
+github.com/Jorrit05/GoLib v0.0.0-20230415134622-43ccf9ee0e3a/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
 github.com/Microsoft/go-winio v0.6.0/go.mod h1:cTAf44im0RAYeL23bpB+fzCyDH2MJiz2BO69KH/soAE=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
