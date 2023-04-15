@@ -3,7 +3,7 @@ module orchestrator_service
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b
+	github.com/Jorrit05/GoLib v0.0.0-20230415173441-e274ba825538
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/rabbitmq/amqp091-go v1.8.0
 	go.etcd.io/etcd/client/v3 v3.5.8

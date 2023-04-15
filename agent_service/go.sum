@@ -1,9 +1,9 @@
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
-github.com/Jorrit05/GoLib v0.0.0-20230415140838-34ace469b661 h1:rS5YtalfOu8kd9fQ9dG/3S4FkVzOrqfroCf8uGO1jJQ=
-github.com/Jorrit05/GoLib v0.0.0-20230415140838-34ace469b661/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
-github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b h1:Dcr9gqIrIOx2nroADhu/qT2FlFknrsJMvooEMMQT9u4=
-github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415181612-d48008f23390 h1:nELbqNpiRudmC93VNTm8WQHVYv+8NO02Js+7tCgw9e4=
+github.com/Jorrit05/GoLib v0.0.0-20230415181612-d48008f23390/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415183727-dfdcaf429b61 h1:TSfJMyLm7S/9Puoj14xXvR/PXdFLVsbamb04m4SwnUw=
+github.com/Jorrit05/GoLib v0.0.0-20230415183727-dfdcaf429b61/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=

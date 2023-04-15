@@ -3,7 +3,7 @@ module reasoner
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b
+	github.com/Jorrit05/GoLib v0.0.0-20230415173441-e274ba825538
 	go.etcd.io/etcd/client/v3 v3.5.8
 )
 

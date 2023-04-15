@@ -3,7 +3,7 @@ module gateway_service
 go 1.19
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b
+	github.com/Jorrit05/GoLib v0.0.0-20230415173441-e274ba825538
 	github.com/google/uuid v1.3.0
 	github.com/rabbitmq/amqp091-go v1.8.0
 )

@@ -26,6 +26,14 @@ github.com/Jorrit05/GoLib v0.0.0-20230415134401-0ef6dfc69167 h1:P4+3RU/aHRPtSq9z
 github.com/Jorrit05/GoLib v0.0.0-20230415134401-0ef6dfc69167/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
 github.com/Jorrit05/GoLib v0.0.0-20230415134622-43ccf9ee0e3a h1:HjOUf1RRXtji1mfykojs+BQziNICBOZye9xRj0CjFJg=
 github.com/Jorrit05/GoLib v0.0.0-20230415134622-43ccf9ee0e3a/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415175126-7c13634a8fd4 h1:g+MGh9rcPHXSnnvkHxurecxJOS1qBI1o6DwgOof9wj8=
+github.com/Jorrit05/GoLib v0.0.0-20230415175126-7c13634a8fd4/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415180309-5482c9fe977f h1:AWm1AELdR1SJcAByzeqoDxyRofW0oknSu/Jll3yE/eA=
+github.com/Jorrit05/GoLib v0.0.0-20230415180309-5482c9fe977f/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415180940-c1fcb48e008e h1:oa0iyvLaMh9LpN+qymDznUlyTu1KzpB7JT6dFVqMZn0=
+github.com/Jorrit05/GoLib v0.0.0-20230415180940-c1fcb48e008e/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415181612-d48008f23390 h1:nELbqNpiRudmC93VNTm8WQHVYv+8NO02Js+7tCgw9e4=
+github.com/Jorrit05/GoLib v0.0.0-20230415181612-d48008f23390/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
 github.com/Microsoft/go-winio v0.6.0/go.mod h1:cTAf44im0RAYeL23bpB+fzCyDH2MJiz2BO69KH/soAE=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=

@@ -65,7 +65,7 @@ func main() {
 
 func registerAgent() {
 	// Prepare agent configuration data
-	var service GoLib.MicroServiceData = GoLib.UnmarshalStackFile("/var/log/stack-files/agent.yaml")
+	var service GoLib.MicroServiceData = GoLib.UnmarshalStackFile("/var/log/stack-files/agents.yaml")
 
 	agentConfig = GoLib.AgentDetails{
 		Name:             hostname,

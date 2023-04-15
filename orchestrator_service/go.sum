@@ -2,6 +2,8 @@ github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 h1:L/gRVlceqvL25
 github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b h1:Dcr9gqIrIOx2nroADhu/qT2FlFknrsJMvooEMMQT9u4=
 github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
+github.com/Jorrit05/GoLib v0.0.0-20230415173441-e274ba825538 h1:63nLjP6UxMpT9Uz+Tm5lhu7cE3eDalAmx2oPuUPecE8=
+github.com/Jorrit05/GoLib v0.0.0-20230415173441-e274ba825538/go.mod h1:l62z96sCucTDOkS41Pz+NcD2F1Yhuwwo8dbsTvCTyy8=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
