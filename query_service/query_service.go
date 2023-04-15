@@ -21,6 +21,7 @@ var (
 
 func main() {
 	defer logFile.Close()
+	defer GoLib.HandlePanicAndFlushLogs(log, logFile)
 
 	// Define a WaitGroup
 	var wg sync.WaitGroup

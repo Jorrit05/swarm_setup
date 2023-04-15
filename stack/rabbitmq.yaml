@@ -9,8 +9,8 @@ services:
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
-      - ./definitions.json:/opt/definitions.json
+      - ./config/rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
+      - ./config/definitions.json:/opt/definitions.json
     environment:
       RABBITMQ_ERLANG_COOKIE: "mysecretcookie"
       RABBITMQ_DEFAULT_USER: "guest"
@@ -34,7 +34,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-
 networks:
   core_network:
     external: true

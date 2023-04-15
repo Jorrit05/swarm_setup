@@ -1,9 +1,4 @@
-docker stack deploy -c sql.yml apps
-docker stack rm apps
-
-docker stack deploy -c mongo.yml mongo
-docker stack rm mongo
-
+docker stack deploy -c stack/logging.yaml -c stack/rabbitmq.yaml -c stack/etcd.yaml  core
 
 docker service ps --no-trunc <ID>
 

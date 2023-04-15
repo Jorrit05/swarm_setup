@@ -28,6 +28,8 @@ var (
 
 func main() {
 	defer logFile.Close()
+	defer GoLib.HandlePanicAndFlushLogs(log, logFile)
+
 	routingKey = GoLib.GetDefaultRoutingKey(serviceName)
 
 	// Register a yaml file of available microservices in etcd.
@@ -67,10 +69,17 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Error parsing request", http.StatusBadRequest)
 		return
 	}
+	orchestratorRequest.Type = strings.ToLower(orchestratorRequest.Type)
 
 	switch orchestratorRequest.Type {
-	case "DataRequest":
-		agentData, _ := handleSqlRequest(orchestratorRequest)
+	case "datarequest":
+		agentData, err := GoLib.GetAndUnmarshalJSONMap[GoLib.AgentDetails](etcdClient, "/agents/")
+		if err != nil {
+			log.Errorf("Getting available agents: %v", err)
+			http.Error(w, "Internal error getting available agents", http.StatusInternalServerError)
+			return
+		}
+
 		if len(agentData) == 0 {
 			w.Write([]byte("No providers of that name are currently available"))
 		} else if len(agentData) != len(orchestratorRequest.Providers) {
@@ -82,8 +91,11 @@ func handler(w http.ResponseWriter, req *http.Request) {
 			// Filter out which providers aren't online currently
 			nonExistingProviders := strings.Join(GoLib.SliceDifferenceString(orchestratorRequest.Providers, agentList), ",")
 			w.Write([]byte(fmt.Sprintf("Providers %s, currently not available. Other requests, if any, are accepted.", nonExistingProviders)))
+
+			return
 		} else {
 			w.Write([]byte("Request accepted, check output queue"))
+			return
 		}
 
 	case "architecture":
@@ -93,17 +105,6 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Unknown request", http.StatusNotFound)
 		return
 	}
-}
-
-func handleSqlRequest(orchestratorRequest GoLib.OrchestratorRequest) (map[string]GoLib.AgentDetails, error) {
-	// var service GoLib.MicroServiceData
-	availableAgents, err := GoLib.GetAndUnmarshalJSONMap[GoLib.AgentDetails](etcdClient, "/agents/")
-	// availableAgents, err := GoLib.GetAvailableAgents(etcdClient)
-	if err != nil {
-		log.Printf("Getting available agents: %v", err)
-		return availableAgents, err
-	}
-	return availableAgents, nil
 }
 
 // func handler(w http.ResponseWriter, req *http.Request) {

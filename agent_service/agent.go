@@ -29,6 +29,7 @@ var (
 func main() {
 	defer logFile.Close()
 	defer etcdClient.Close()
+	defer GoLib.HandlePanicAndFlushLogs(log, logFile)
 
 	// Because there will be several agents running in this test setup add (and register) a guid for uniqueness
 	routingKey = GoLib.GetDefaultRoutingKey(serviceName)
@@ -64,7 +65,7 @@ func main() {
 
 func registerAgent() {
 	// Prepare agent configuration data
-	var service GoLib.MicroServiceData = GoLib.UnmarshalStackFile("/var/log/stack-files/agent.yml")
+	var service GoLib.MicroServiceData = GoLib.UnmarshalStackFile("/var/log/stack-files/agent.yaml")
 
 	agentConfig = GoLib.AgentDetails{
 		Name:             hostname,

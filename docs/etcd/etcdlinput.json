@@ -103,7 +103,7 @@
     },
     {
         "name": "ArcheType1",
-        "request_type": "DataRequest",
+        "request_type": "datarequest",
         "io_config": {
             "service_io": {
                 "anonymize_service": "query_service",
@@ -116,7 +116,7 @@
     },
     {
         "name": "ArcheType2",
-        "request_type": "DataRequest",
+        "request_type": "datarequest",
         "io_config": {
             "service_io": {
                 "anonymize_service": "query_service",

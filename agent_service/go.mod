@@ -3,7 +3,7 @@ module agent_service
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230414140118-cfa61c213409
+	github.com/Jorrit05/GoLib v0.0.0-20230415172214-3cfcc1076b0b
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/rabbitmq/amqp091-go v1.8.0
 	go.etcd.io/etcd/client/v3 v3.5.8
@@ -11,7 +11,7 @@ require (
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/Microsoft/go-winio v0.6.0 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
@@ -24,7 +24,6 @@ require (
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.8 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.8 // indirect
 	go.uber.org/atomic v1.10.0 // indirect

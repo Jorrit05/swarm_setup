@@ -34,6 +34,7 @@ type updateRequest struct {
 func main() {
 	defer logFile.Close()
 	defer etcdClient.Close()
+	defer GoLib.HandlePanicAndFlushLogs(log, logFile)
 
 	registerReasonerConfiguration()
 
@@ -64,14 +65,8 @@ func registerReasonerConfiguration() {
 	if err != nil {
 		log.Fatalf("Failed to read the JSON requestor config file: %v", err)
 	}
-	log.Infof("Archetypes JSON content: %s", string(archetypesJSON))
 
-	log.Info("start register requestor:")
 	GoLib.RegisterJSONArray[GoLib.Requestor](requestorConfigJSON, &GoLib.RequestorConfig{}, etcdClient, "/reasoner/requestor_config")
-
-	log.Info("end register requestor:")
-	log.Infof("Reasoner Config JSON content: %s", string(requestorConfigJSON))
-
 }
 
 func getHandler(w http.ResponseWriter, req *http.Request) {

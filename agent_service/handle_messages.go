@@ -64,7 +64,7 @@ func startMessageLoop(
 		}
 
 		switch msg.Type {
-		case "DataRequest":
+		case "datarequest":
 
 		case "CreateService":
 			var payload []GoLib.CreateServicePayload

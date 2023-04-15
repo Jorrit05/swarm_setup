@@ -2,7 +2,7 @@
     "archetypes": [
         {
             "name": "ArcheType1",
-            "request_type": "DataRequest",
+            "request_type": "datarequest",
             "io_config": {
                 "service_io": {
                     "query_service": "start",
@@ -13,7 +13,7 @@
         },
         {
             "name": "ArcheType2",
-            "request_type": "DataRequest",
+            "request_type": "datarequest",
             "io_config": {
                 "third_party_name": "ttp",
                 "service_io": {
