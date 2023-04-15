@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"net/http"
@@ -19,11 +20,15 @@ var (
 	hostname                      = os.Getenv("HOSTNAME")
 )
 
+type Updatable interface {
+	GetName() string
+}
+
 type updateRequest struct {
-	Type      string          `json:"type"`
-	Requestor string          `json:"requestor"`
-	Archetype GoLib.ArcheType `json:"archetype"`
-	Reasoner  GoLib.Requestor `json:"requestor"`
+	Type          string          `json:"type"`
+	RequestorName string          `json:"requestor"`
+	Archetype     GoLib.ArcheType `json:"archetype"`
+	RequestorData GoLib.Requestor `json:"requestor_data"`
 }
 
 func main() {
@@ -34,6 +39,8 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/update", updateHandler)
+	mux.HandleFunc("/archetype_config", getHandler)
+	mux.HandleFunc("/requestor_config", getHandler)
 	go func() {
 		if err := http.ListenAndServe(":8081", mux); err != nil {
 			log.Fatalf("Error starting HTTP server: %s", err)
@@ -53,12 +60,61 @@ func registerReasonerConfiguration() {
 
 	GoLib.RegisterJSONArray[GoLib.ArcheType](archetypesJSON, &GoLib.ArcheTypes{}, etcdClient, "/reasoner/archetype_config")
 
-	reasonerConfigJSON, err := os.ReadFile("/var/log/stack-files/config/requestor_config.json")
+	requestorConfigJSON, err := os.ReadFile("/var/log/stack-files/config/requestor_config.json")
 	if err != nil {
 		log.Fatalf("Failed to read the JSON requestor config file: %v", err)
 	}
+	log.Infof("Archetypes JSON content: %s", string(archetypesJSON))
 
-	GoLib.RegisterJSONArray[GoLib.Requestor](reasonerConfigJSON, &GoLib.RequestorConfig{}, etcdClient, "/reasoner/requestor_config")
+	log.Info("start register requestor:")
+	GoLib.RegisterJSONArray[GoLib.Requestor](requestorConfigJSON, &GoLib.RequestorConfig{}, etcdClient, "/reasoner/requestor_config")
+
+	log.Info("end register requestor:")
+	log.Infof("Reasoner Config JSON content: %s", string(requestorConfigJSON))
+
+}
+
+func getHandler(w http.ResponseWriter, req *http.Request) {
+	path := req.URL.Path
+	key := fmt.Sprintf("/reasoner%s/", path)
+	var jsonData []byte
+
+	switch path {
+	case "/archetype_config":
+		archetypeConf, err := GoLib.GetAndUnmarshalJSONMap[GoLib.ArcheType](etcdClient, key)
+
+		if err != nil {
+			log.Printf("Error in requesting config: %s", err)
+			http.Error(w, "Error in requesting config", http.StatusInternalServerError)
+			return
+		}
+		jsonData, err = json.Marshal(archetypeConf)
+		if err != nil {
+			log.Fatalf("Failed to convert map to JSON: %v", err)
+		}
+
+	case "/requestor_config":
+
+		requestorConf, err := GoLib.GetAndUnmarshalJSONMap[GoLib.Requestor](etcdClient, key)
+		if err != nil {
+			log.Printf("Error in requesting config: %s", err)
+			http.Error(w, "Error in requesting config", http.StatusInternalServerError)
+			return
+		}
+
+		jsonData, err = json.Marshal(requestorConf)
+		if err != nil {
+			log.Fatalf("Failed to convert map to JSON: %v", err)
+		}
+
+	default:
+		log.Printf("Unknown path: %s", path)
+		http.Error(w, "Unknown request", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(jsonData))
 }
 
 func updateHandler(w http.ResponseWriter, req *http.Request) {
@@ -82,8 +138,8 @@ func updateHandler(w http.ResponseWriter, req *http.Request) {
 	switch updateReq.Type {
 	case "archeTypeUpdate":
 		updateArchetypeHandler(updateReq, w, req)
-	case "reasonerUpdate":
-		return
+	case "requestorUpdate":
+		updateRequestorHandler(updateReq, w, req)
 
 	default:
 		log.Printf("Unknown message type: %s", updateReq.Type)
@@ -98,30 +154,20 @@ func updateArchetypeHandler(updateReq updateRequest, w http.ResponseWriter, req 
 	if err != nil {
 		http.Error(w, "Failed get data", http.StatusInternalServerError)
 	}
-	// Find and update the target archetype
-	oldArcheType, ok := archeTypeMap[updateReq.Archetype.Name]
-	if ok {
-		archeTypeMap[updateReq.Archetype.Name] = updateArchetype(oldArcheType, updateReq.Archetype)
 
-		// Save updated archetypes back to etcd
-		err = GoLib.SaveStructToEtcd(etcdClient, "/reasoner/archetype_config/", archeTypeMap[updateReq.Archetype.Name])
-		if err != nil {
-			http.Error(w, "Failed to save updated archetypes to etcd", http.StatusInternalServerError)
-			return
-		}
-	} else {
-		err = GoLib.SaveStructToEtcd(etcdClient, "/reasoner/archetype_config/", updateReq.Archetype)
-		if err != nil {
-			http.Error(w, "Failed to save updated archetypes to etcd", http.StatusInternalServerError)
-			return
-		}
-		log.Info("Saved update with name %s as new config in '/reasoner/archetype_config/'.", updateReq.Archetype.Name)
+	// Find and update the target requestor
+	archeTypeMap[updateReq.Archetype.Name] = updateArchetype(archeTypeMap[updateReq.Archetype.Name], updateReq.Archetype)
+
+	// Save updated requestors back to etcd
+	err = GoLib.SaveStructToEtcd(etcdClient, "/reasoner/archetype_config/"+updateReq.Archetype.Name, archeTypeMap[updateReq.Archetype.Name])
+	if err != nil {
+		http.Error(w, "Failed to save updated ar to etcd", http.StatusInternalServerError)
+		return
 	}
+	log.Info("Saved update with name %s as new config in '/reasoner/archetype_config/'.", updateReq.Archetype.Name)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Archetype updated successfully"))
-
-	http.Error(w, "Unknown request type", http.StatusBadRequest)
 }
 
 func updateArchetype(old, new GoLib.ArcheType) GoLib.ArcheType {
@@ -143,6 +189,41 @@ func updateArchetype(old, new GoLib.ArcheType) GoLib.ArcheType {
 
 	if new.IoConfig.ThirdPartyName != "" {
 		old.IoConfig.ThirdPartyName = new.IoConfig.ThirdPartyName
+	}
+
+	return old
+}
+
+func updateRequestorHandler(updateReq updateRequest, w http.ResponseWriter, req *http.Request) {
+	// Load requestors from etcd
+	requestorMap, err := GoLib.GetAndUnmarshalJSONMap[GoLib.Requestor](etcdClient, "/reasoner/requestor_config/")
+	if err != nil {
+		http.Error(w, "Failed to get data", http.StatusInternalServerError)
+	}
+
+	// Find and update the target requestor
+	requestorMap[updateReq.RequestorData.Name] = updateRequestor(requestorMap[updateReq.RequestorData.Name], updateReq.RequestorData)
+
+	// Save updated requestors back to etcd
+	err = GoLib.SaveStructToEtcd(etcdClient, "/reasoner/requestor_config/"+updateReq.RequestorData.Name, requestorMap[updateReq.RequestorData.Name])
+	if err != nil {
+		http.Error(w, "Failed to save updated requestors to etcd", http.StatusInternalServerError)
+		return
+	}
+
+	log.Info("Saved update with name %s as new config in '/reasoner/requestor_config/'.", updateReq.RequestorData.Name)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Requestor updated successfully"))
+}
+
+func updateRequestor(old, new GoLib.Requestor) GoLib.Requestor {
+	if new.CurrentArchetype != "" {
+		old.CurrentArchetype = new.CurrentArchetype
+	}
+
+	if len(new.AllowedPartners) > 0 {
+		old.AllowedPartners = new.AllowedPartners
 	}
 
 	return old

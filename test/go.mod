@@ -3,13 +3,13 @@ module test
 go 1.19
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230414134718-e8a1613b8573
+	github.com/Jorrit05/GoLib v0.0.0-20230415134401-0ef6dfc69167
 	go.etcd.io/etcd/client/v3 v3.5.8
 )
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
-	github.com/Microsoft/go-winio v0.6.0 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect

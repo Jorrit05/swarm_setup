@@ -71,11 +71,11 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	switch orchestratorRequest.Type {
 	case "DataRequest":
 		agentData, _ := handleSqlRequest(orchestratorRequest)
-		if len(agentData.Agents) == 0 {
+		if len(agentData) == 0 {
 			w.Write([]byte("No providers of that name are currently available"))
-		} else if len(agentData.Agents) != len(orchestratorRequest.Providers) {
+		} else if len(agentData) != len(orchestratorRequest.Providers) {
 			var agentList []string
-			for k := range agentData.Agents {
+			for k := range agentData {
 				agentList = append(agentList, k)
 			}
 
@@ -95,8 +95,10 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func handleSqlRequest(orchestratorRequest GoLib.OrchestratorRequest) (GoLib.AgentData, error) {
-	availableAgents, err := GoLib.GetAvailableAgents(etcdClient)
+func handleSqlRequest(orchestratorRequest GoLib.OrchestratorRequest) (map[string]GoLib.AgentDetails, error) {
+	// var service GoLib.MicroServiceData
+	availableAgents, err := GoLib.GetAndUnmarshalJSONMap[GoLib.AgentDetails](etcdClient, "/agents/")
+	// availableAgents, err := GoLib.GetAvailableAgents(etcdClient)
 	if err != nil {
 		log.Printf("Getting available agents: %v", err)
 		return availableAgents, err

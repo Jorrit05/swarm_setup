@@ -3,7 +3,7 @@ module orchestrator_service
 go 1.20
 
 require (
-	github.com/Jorrit05/GoLib v0.0.0-20230414134718-e8a1613b8573
+	github.com/Jorrit05/GoLib v0.0.0-20230415130528-c5ca388a984a
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/rabbitmq/amqp091-go v1.8.0
 	go.etcd.io/etcd/client/v3 v3.5.8
@@ -11,7 +11,7 @@ require (
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
-	github.com/Microsoft/go-winio v0.6.0 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect

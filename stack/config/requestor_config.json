@@ -1,7 +1,7 @@
 {
-  "reasoner_config": [
+  "requestor_config": [
     {
-      "requestor_id": "uva",
+      "name": "uva",
       "current_archetype": "Archetype1",
       "allowed_partners": [
         "unl1",
@@ -9,7 +9,7 @@
       ]
     },
     {
-      "requestor_id": "vu",
+      "name": "vu",
       "current_archetype": "Archetype1",
       "allowed_partners": [
         "unl1",

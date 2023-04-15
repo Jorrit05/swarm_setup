@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/Jorrit05/GoLib"
@@ -15,6 +17,18 @@ var (
 	log, logFile = GoLib.InitLogger(serviceName)
 	etcdClient   *clientv3.Client
 )
+
+// func (c *GoLib.RequestorConfig) Len() int {
+// 	return len(c.Contents)
+// }
+
+// func (c *GoLib.RequestorConfig) Get(index int) interface{} {
+// 	return &c.Contents[index]
+// }
+
+// func (a *GoLib.Requestor) GetName() string {
+// 	return a.Name
+// }
 
 // func (c CreateServicePayload) String() string {
 // 	var sb strings.Builder
@@ -69,7 +83,38 @@ func SaveStructToEtcd[T any](etcdClient *clientv3.Client, key string, target T) 
 
 	return nil
 }
+func RegisterJSONArray[T any](jsonContent []byte, target Iterable, etcdClient *clientv3.Client, key string) error {
+	log.Print("Starting RegisterJSONArray")
 
+	fmt.Println("Dump JSON:" + string(jsonContent))
+
+	err := json.Unmarshal(jsonContent, &target)
+	if err != nil {
+		log.Info("ERROR IN UMARSHAL")
+
+		log.Errorf("failed to unmarshal JSON content: %v", err)
+		return err
+	}
+	log.Info("Dump target:" + string(target.Len()))
+
+	for i := 0; i < target.Len(); i++ {
+		element := target.Get(i).(NameGetter) // Assert that element implements NameGetter
+		log.Info("Element getname: " + element.GetName())
+		jsonRep, err := json.Marshal(element)
+		if err != nil {
+			log.Errorf("Failed to Marshal config: %v", err)
+			return err
+		}
+
+		_, err = etcdClient.Put(context.Background(), fmt.Sprintf("%s/%s", key, string(element.GetName())), string(jsonRep))
+		if err != nil {
+			log.Errorf("Failed creating archetypesJSON in etcd: %s", err)
+			return err
+		}
+	}
+
+	return nil
+}
 func main() {
 	etcdClient, err := clientv3.New(clientv3.Config{
 		Endpoints:   []string{"localhost:2379"},
@@ -78,16 +123,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	type SampleStruct struct {
-		Name  string `json:"name"`
-		Value int    `json:"value"`
-	}
 
-	sample := SampleStruct{Name: "test", Value: 42}
-	err = SaveStructToEtcd(etcdClient, "/sample/test", sample)
+	requestorConfigJSON, err := os.ReadFile("/Users/jorrit/Documents/master-software-engineering/thesis/swarm_setup/stack/config/requestor_config.json")
 	if err != nil {
-		log.Fatalf("failed to save struct to etcd: %v", err)
+		log.Fatalf("Failed to read the JSON requestor config file: %v", err)
 	}
+	log.Infof("Archetypes JSON content: %s", string(requestorConfigJSON))
+
+	log.Info("start register requestor:")
+	RegisterJSONArray[GoLib.Requestor](requestorConfigJSON, &GoLib.RequestorConfig{}, etcdClient, "/reasoner/requestor_config")
+
+	log.Info("end register requestor:")
+	log.Infof("Reasoner Config JSON content: %s", string(requestorConfigJSON))
+
 	// registerJSONArray[GoLib.ArcheType](archetypesJSON, &GoLib.ArcheTypes{}, etcdClient, "/reasoner/archetype_config")
 
 	// 	// var err error = nil
