@@ -1,0 +1,149 @@
+[
+    {
+        "name": "unl1_agent",
+        "services": null,
+        "ActiveSince": null,
+        "ConfigUpdated": null,
+        "RoutingKeyOutput": "service.agent-56536ec1",
+        "RoutingKeyInput": "service.agent-56536ec1-input",
+        "InputQueueName": "agent-56536ec1_service-input",
+        "ServiceName": "agent-56536ec1_service",
+        "AgentDetails": {
+            "Tag": "",
+            "Image": "",
+            "Ports": null,
+            "EnvVars": null,
+            "Secrets": null,
+            "Volumes": null,
+            "Deploy": {
+                "placement": {},
+                "resources": {
+                    "reservations": {},
+                    "limits": {}
+                }
+            }
+        }
+    },
+    {
+        "name": "unl2_agent",
+        "services": null,
+        "ActiveSince": null,
+        "ConfigUpdated": null,
+        "RoutingKeyOutput": "service.agent-c5c62de3",
+        "RoutingKeyInput": "service.agent-c5c62de3-input",
+        "InputQueueName": "agent-c5c62de3_service-input",
+        "ServiceName": "agent-c5c62de3_service",
+        "AgentDetails": {
+            "Tag": "",
+            "Image": "",
+            "Ports": null,
+            "EnvVars": null,
+            "Secrets": null,
+            "Volumes": null,
+            "Deploy": {
+                "placement": {},
+                "resources": {
+                    "reservations": {},
+                    "limits": {}
+                }
+            }
+        }
+    },
+    {
+        "Tag": "latest",
+        "Image": "anonymize_service",
+        "Ports": {},
+        "EnvVars": {
+            "AMQ_PASSWORD_FILE": "/run/secrets/rabbitmq_user",
+            "AMQ_USER": "normal_user",
+            "INPUT_QUEUE": "query_service"
+        },
+        "Secrets": [
+            "rabbitmq_user"
+        ],
+        "Volumes": {
+            "service_logs": "/var/log/service_logs"
+        },
+        "Deploy": {
+            "placement": {},
+            "resources": {
+                "reservations": {},
+                "limits": {}
+            }
+        }
+    },
+    {
+        "Tag": "latest",
+        "Image": "query_service",
+        "Ports": {},
+        "EnvVars": {
+            "AMQ_PASSWORD_FILE": "/run/secrets/rabbitmq_user",
+            "AMQ_USER": "normal_user",
+            "DB_USER": "root",
+            "INPUT_QUEUE": "gateway_service",
+            "MYSQL_DATABASE": "mydb",
+            "MYSQL_PASSWORD_FILE": "/run/secrets/db_dba_password",
+            "MYSQL_ROOT_PASSWORD_FILE": "/run/secrets/db_root_password"
+        },
+        "Secrets": [
+            "db_root_password",
+            "db_dba_password",
+            "rabbitmq_user"
+        ],
+        "Volumes": {
+            "service_logs": "/var/log/service_logs"
+        },
+        "Deploy": {
+            "placement": {},
+            "resources": {
+                "reservations": {},
+                "limits": {}
+            }
+        }
+    },
+    {
+        "name": "ArcheType1",
+        "request_type": "DataRequest",
+        "io_config": {
+            "service_io": {
+                "anonymize_service": "query_service",
+                "query_service": "start"
+            },
+            "finish": "anonymize_service",
+            "third_party_name": "",
+            "third_party": null
+        }
+    },
+    {
+        "name": "ArcheType2",
+        "request_type": "DataRequest",
+        "io_config": {
+            "service_io": {
+                "anonymize_service": "query_service",
+                "query_service": "start"
+            },
+            "finish": "algorithm",
+            "third_party_name": "ttp",
+            "third_party": {
+                "aggregation_service": "anonymize_service",
+                "algorithm": "aggregation_service"
+            }
+        }
+    },
+    {
+        "name": "uva",
+        "current_archetype": "Archetype1",
+        "allowed_partners": [
+            "unl1",
+            "unl2"
+        ]
+    },
+    {
+        "name": "vu",
+        "current_archetype": "Archetype1",
+        "allowed_partners": [
+            "unl1",
+            "unl2"
+        ]
+    }
+]
